@@ -1,119 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GTA: Chinatown Wars - Play Now</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>NDS Emulator – Ad‑Free</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      color: #0f0;
-      font-family: monospace;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-    }
-    #container {
+      height: 100%; width: 100%;
+      font-family: sans-serif;
+      background: #f5f5f5;
+      color: #333;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100%;
+    }
+    header {
+      width: 100%;
+      padding: 16px;
+      background: #e0e0e0;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    #container {
+      flex: 1;
+      width: 100%;
+      max-width: 960px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     #screen {
-      width: 90vw;
-      max-width: 960px;
-      height: 70vh;
-      max-height: 720px;
-      background: #111;
-      border: 8px inset #333;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 24px;
-      box-shadow: 0 0 20px #0f0;
+      width: 100%;
+      background: #ddd;
+      border: 2px solid #bbb;
+      position: relative;
+    }
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
     }
     #controls {
-      margin-top: 20px;
+      margin-top: 12px;
       display: flex;
-      gap: 12px;
+      gap: 8px;
       flex-wrap: wrap;
       justify-content: center;
     }
-    button {
-      background: #111;
-      color: #0f0;
-      border: 1px solid #0f0;
-      padding: 10px 18px;
-      border-radius: 6px;
+    button, input[type=file] {
+      padding: 8px 12px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 16px;
     }
-    button:hover {
-      background: #0f0;
-      color: #000;
-    }
-    #notice {
-      margin-top: 16px;
-      font-size: 13px;
-      opacity: 0.6;
-    }
-    #adblock-message {
-      position: absolute;
-      top: 0;
-      width: 100%;
-      background: #1a1a1a;
-      text-align: center;
-      padding: 6px;
-      font-size: 14px;
-      border-bottom: 1px solid #0f0;
-      display: none;
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    #adblock-status {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <div id="adblock-message">AdBlock detected. Enjoy your clean gaming experience.</div>
+
+  <header>
+    <h1>GTA Chinatown Wars – NDS Emulator</h1>
+  </header>
+
   <div id="container">
-    <div id="screen">
-      GTA: Chinatown Wars<br><small>(Mock Emulator Screen)</small>
-    </div>
+    <div id="screen">Loading emulator...</div>
+
     <div id="controls">
-      <button onclick="startGame()">Start</button>
-      <button onclick="pauseGame()">Pause</button>
-      <button onclick="goFullscreen()">Fullscreen</button>
-      <button onclick="alert('Screenshot captured!')">Screenshot</button>
+      <input type="file" id="romInput" accept=".nds" />
+      <button id="btnStart" disabled>Start</button>
+      <button id="btnPause" disabled>Pause</button>
+      <button id="btnResume" disabled>Resume</button>
+      <button id="btnFullscreen" disabled>Fullscreen</button>
     </div>
-    <div id="notice">No ROM loaded. This is a UI mockup. No downloads, ads, or tracking included.</div>
+
+    <div id="adblock-status">Initializing ad-blocker…</div>
   </div>
 
-  <script>
-    function startGame() {
-      document.getElementById('screen').innerHTML = 'Running GTA: Chinatown Wars...';
-      document.getElementById('notice').textContent = 'Fake emulator started.';
-    }
+  <script type="module">
+    import { ElectronBlocker } from 'https://cdn.jsdelivr.net/npm/@ghostery/adblocker-webextension@1.2.0/dist/adblocker-basic.min.js';
+    import EmulatorJS from 'https://cdn.jsdelivr.net/npm/emulatorjs@1.0.11/dist/emu.min.js';
 
-    function pauseGame() {
-      document.getElementById('screen').innerHTML = 'Paused';
-      document.getElementById('notice').textContent = 'Fake emulator paused.';
-    }
+    let emu = null;
+    const screen = document.getElementById('screen'),
+          romInput = document.getElementById('romInput'),
+          btnStart = document.getElementById('btnStart'),
+          btnPause = document.getElementById('btnPause'),
+          btnResume = document.getElementById('btnResume'),
+          btnFullscreen = document.getElementById('btnFullscreen'),
+          adStatus = document.getElementById('adblock-status');
 
-    function goFullscreen() {
-      const el = document.documentElement;
+    // Initialize ad-blocker
+    ElectronBlocker.fromPrebuiltAdsAndTracking().then(adblk => {
+      adblk.enableBlockingInBrowser(window);
+      adStatus.textContent = 'Ad-blocker active.';
+    }).catch(err => {
+      adStatus.textContent = 'Failed to init ad-blocker.';
+      console.error(err);
+    });
+
+    romInput.addEventListener('change', async () => {
+      if (!romInput.files.length) return;
+      const buf = await romInput.files[0].arrayBuffer();
+      if (emu) emu.stop();
+      screen.innerHTML = '';
+      emu = new EmulatorJS({
+        system: 'nds',
+        romBuffer: buf,
+        onReady: () => {
+          btnStart.disabled = false;
+          btnFullscreen.disabled = false;
+        }
+      });
+      screen.appendChild(emu.canvas);
+    });
+
+    btnStart.onclick = () => {
+      emu?.start();
+      btnPause.disabled = false;
+      btnStart.disabled = true;
+    };
+    btnPause.onclick = () => {
+      emu?.pause();
+      btnResume.disabled = false;
+      btnPause.disabled = true;
+    };
+    btnResume.onclick = () => {
+      emu?.resume();
+      btnPause.disabled = false;
+      btnResume.disabled = true;
+    };
+    btnFullscreen.onclick = () => {
       if (!document.fullscreenElement) {
-        el.requestFullscreen();
+        screen.requestFullscreen();
       } else {
         document.exitFullscreen();
       }
-    }
-
-    // Fake AdBlock detection (you could tie this to blocked resources if desired)
-    window.addEventListener('load', () => {
-      // Simulate that AdBlock is on
-      document.getElementById('adblock-message').style.display = 'block';
-    });
+    };
   </script>
 </body>
 </html>
