@@ -12,9 +12,9 @@
   body, html {
     margin: 0; padding: 0;
     height: 100%;
-    background-color: #e0e0e0; /* light gray background */
+    background-color: #000; /* black background */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
+    color: #ccc;
     overflow: hidden;
   }
   #container {
@@ -23,14 +23,14 @@
     height: 100vh;
   }
   header {
-    background: #c0c0c0;
+    background: #111;
     padding: 0.5rem 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     font-weight: 600;
     user-select: none;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(255,255,255,0.1);
   }
   header h1 {
     font-size: 1.2rem;
@@ -41,19 +41,21 @@
     gap: 0.75rem;
   }
   button {
-    background: #f5f5f5;
-    border: 1px solid #999;
+    background: #222;
+    border: 1px solid #444;
     border-radius: 4px;
     padding: 0.3rem 0.6rem;
     font-size: 0.9rem;
     cursor: pointer;
-    transition: background 0.2s ease;
+    color: #ccc;
+    transition: background 0.2s ease, color 0.2s ease;
   }
   button:hover {
-    background: #ddd;
+    background: #444;
+    color: #fff;
   }
   button:focus {
-    outline: 2px solid #555;
+    outline: 2px solid #666;
   }
   #emulator-frame {
     flex-grow: 1;
@@ -76,14 +78,14 @@
     bottom: 120%;
     left: 50%;
     transform: translateX(-50%);
-    background: #444;
-    color: #fff;
+    background: #222;
+    color: #ccc;
     padding: 4px 8px;
     font-size: 0.75rem;
     border-radius: 3px;
     white-space: nowrap;
     pointer-events: none;
-    opacity: 0.85;
+    opacity: 0.9;
     z-index: 10;
   }
 </style>
@@ -95,7 +97,7 @@
       <div id="controls">
         <button id="fullscreen-btn" title="Toggle Fullscreen">🖵 Fullscreen</button>
         <button id="audio-btn" title="Mute/Unmute Audio">🔊 Audio On</button>
-        <button id="graphics-btn" title="Toggle Graphics Mode">🖼️ Graphics</button>
+        <button id="graphics-btn" title="Toggle Graphics Mode">🖼️ Graphics: High</button>
         <button id="reset-btn" title="Reset Emulator">⟳ Reset</button>
       </div>
     </header>
@@ -116,10 +118,7 @@
   const graphicsBtn = document.getElementById('graphics-btn');
   const resetBtn = document.getElementById('reset-btn');
 
-  // Track audio state (start unmuted)
   let audioOn = true;
-
-  // Track graphics mode (simple example: toggle CSS filter)
   let graphicsHigh = true;
 
   fullscreenBtn.addEventListener('click', () => {
@@ -131,20 +130,9 @@
   });
 
   audioBtn.addEventListener('click', () => {
-    // We cannot control audio inside iframe directly (due to cross-origin),
-    // but we can reload the iframe with ?mute=1 or ?mute=0 param if supported,
-    // else just toggle the button state.
     audioOn = !audioOn;
     audioBtn.textContent = audioOn ? '🔊 Audio On' : '🔇 Muted';
-    // Reload iframe with mute param (optional; may or may not work depending on emulator)
-    // For demonstration, reload iframe with mute query param
-    let src = new URL(iframe.src);
-    if (audioOn) {
-      src.searchParams.delete('mute');
-    } else {
-      src.searchParams.set('mute', '1');
-    }
-    iframe.src = src.toString();
+    reloadIframe();
   });
 
   graphicsBtn.addEventListener('click', () => {
@@ -153,18 +141,16 @@
       iframe.style.filter = 'none';
       graphicsBtn.textContent = '🖼️ Graphics: High';
     } else {
-      // Example: toggle grayscale filter to simulate "low graphics"
       iframe.style.filter = 'grayscale(100%) contrast(0.8)';
       graphicsBtn.textContent = '🖼️ Graphics: Low';
     }
   });
 
   resetBtn.addEventListener('click', () => {
-    // Reset emulator by reloading iframe
-    iframe.contentWindow.location.reload();
+    reloadIframe();
   });
 
-  // Handle fullscreen change button label
+  // Update fullscreen button label on change
   document.addEventListener('fullscreenchange', () => {
     if (document.fullscreenElement) {
       fullscreenBtn.textContent = '🖵 Exit Fullscreen';
@@ -172,6 +158,18 @@
       fullscreenBtn.textContent = '🖵 Fullscreen';
     }
   });
+
+  // Reload iframe with audio param
+  function reloadIframe() {
+    const baseUrl = "https://emulatorjs.org/ds/";
+    // Build URL with ROM file param
+    const url = new URL(baseUrl);
+    url.searchParams.set('file', 'https://cdn.jsdelivr.net/gh/higanworks/emulatorjs/roms/nds/Grand_Theft_Auto_Chinatown_Wars_USA.nds');
+    if (!audioOn) {
+      url.searchParams.set('mute', '1');
+    }
+    iframe.src = url.toString();
+  }
 </script>
 </body>
 </html>
