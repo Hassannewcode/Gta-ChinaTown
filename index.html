@@ -1,107 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>GTA Chinatown Wars - Fake Emulator</title>
+  <meta charset="UTF-8">
+  <title>GTA: Chinatown Wars - Play Now</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: #111;
-      font-family: monospace, monospace;
-      height: 100vh;
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
       width: 100vw;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      height: 100vh;
       overflow: hidden;
     }
-
-    .emulator-frame {
-      background: #222;
-      border: 10px solid #444;
-      border-radius: 12px;
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-      padding: 20px;
-      text-align: center;
-      width: 960px;
-      height: 720px;
+    #container {
       display: flex;
       flex-direction: column;
-    }
-
-    .screen {
-      flex-grow: 1;
-      border: 6px inset #555;
-      background: radial-gradient(circle at center, #000 40%, #111 100%);
-      display: flex;
-      justify-content: center;
       align-items: center;
-      color: #0f0;
+      justify-content: center;
+      height: 100%;
+    }
+    #screen {
+      width: 90vw;
+      max-width: 960px;
+      height: 70vh;
+      max-height: 720px;
+      background: #111;
+      border: 8px inset #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
       font-size: 24px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      position: relative;
-      user-select: none;
+      box-shadow: 0 0 20px #0f0;
     }
-
-    .screen::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        repeating-linear-gradient(
-          0deg,
-          rgba(0,255,0,0.05),
-          rgba(0,255,0,0.05) 2px,
-          transparent 2px,
-          transparent 4px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          rgba(0,255,0,0.05),
-          rgba(0,255,0,0.05) 2px,
-          transparent 2px,
-          transparent 4px
-        );
+    #controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
-
-    .label {
-      margin-top: 10px;
+    button {
+      background: #111;
       color: #0f0;
+      border: 1px solid #0f0;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #0f0;
+      color: #000;
+    }
+    #notice {
+      margin-top: 16px;
+      font-size: 13px;
+      opacity: 0.6;
+    }
+    #adblock-message {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      background: #1a1a1a;
+      text-align: center;
+      padding: 6px;
       font-size: 14px;
-      user-select: none;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    .loading-text::after {
-      content: "_";
-      animation: blink 1s infinite;
+      border-bottom: 1px solid #0f0;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="emulator-frame" role="main" aria-label="Fake Emulator UI">
-    <div class="screen" aria-live="polite" aria-atomic="true">
-      <div id="loading" class="loading-text">Loading GTA Chinatown Wars...</div>
+  <div id="adblock-message">AdBlock detected. Enjoy your clean gaming experience.</div>
+  <div id="container">
+    <div id="screen">
+      GTA: Chinatown Wars<br><small>(Mock Emulator Screen)</small>
     </div>
-    <div class="label">Fake Emulator UI – No ROM, No Ads, No EmulatorJS</div>
+    <div id="controls">
+      <button onclick="startGame()">Start</button>
+      <button onclick="pauseGame()">Pause</button>
+      <button onclick="goFullscreen()">Fullscreen</button>
+      <button onclick="alert('Screenshot captured!')">Screenshot</button>
+    </div>
+    <div id="notice">No ROM loaded. This is a UI mockup. No downloads, ads, or tracking included.</div>
   </div>
 
   <script>
-    const loading = document.getElementById('loading');
-    const dots = ['.', '..', '...', '....', '.....'];
-    let index = 0;
+    function startGame() {
+      document.getElementById('screen').innerHTML = 'Running GTA: Chinatown Wars...';
+      document.getElementById('notice').textContent = 'Fake emulator started.';
+    }
 
-    setInterval(() => {
-      loading.textContent = `Loading GTA Chinatown Wars${dots[index]}`;
-      index = (index + 1) % dots.length;
-    }, 600);
+    function pauseGame() {
+      document.getElementById('screen').innerHTML = 'Paused';
+      document.getElementById('notice').textContent = 'Fake emulator paused.';
+    }
+
+    function goFullscreen() {
+      const el = document.documentElement;
+      if (!document.fullscreenElement) {
+        el.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Fake AdBlock detection (you could tie this to blocked resources if desired)
+    window.addEventListener('load', () => {
+      // Simulate that AdBlock is on
+      document.getElementById('adblock-message').style.display = 'block';
+    });
   </script>
 </body>
 </html>
