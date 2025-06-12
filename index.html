@@ -1,49 +1,359 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GTA Chinatown Wars - Emulator</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      background: #111;
-      font-family: monospace;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #game-container {
-      width: 960px;
-      height: 720px;
-      border: 8px solid #444;
-      border-radius: 10px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8);
-      background: #000;
-      overflow: hidden;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Web NDS Emulator - Full Experience</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: #111;
+    color: #0f0;
+    font-family: monospace, monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #emulator-container {
+    position: relative;
+    margin-top: 10px;
+    background: #222;
+    border: 8px solid #444;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(0,255,0,0.7);
+    width: 960px;
+    max-width: 100vw;
+  }
+  #screen {
+    position: relative;
+    width: 960px;
+    height: 720px;
+    background: black;
+    border: 6px inset #555;
+  }
+  #screen iframe, #screen canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  #controls {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  button, input[type=range] {
+    background: #222;
+    border: 1px solid #0f0;
+    color: #0f0;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  button:hover, input[type=range]:hover {
+    background: #0f0;
+    color: #111;
+  }
+  #fileInput {
+    display: none;
+  }
+  #dropZone {
+    margin: 10px 0;
+    padding: 20px;
+    width: 400px;
+    max-width: 90vw;
+    border: 3px dashed #0f0;
+    border-radius: 12px;
+    text-align: center;
+    color: #0f0;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+  }
+  #dropZone.dragover {
+    background: #0f060f;
+  }
+  #romInfo {
+    margin-top: 10px;
+    font-size: 14px;
+    min-height: 1.2em;
+  }
+  #keyMapBtn {
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-left: 8px;
+  }
+</style>
 </head>
 <body>
-  <div id="game-container">
-    <div id="game"></div>
+
+<h1>Web NDS Emulator - Full Experience</h1>
+
+<div id="emulator-container">
+  <div id="screen">
+    <!-- EmulatorJS canvas or iframe goes here -->
   </div>
 
-  <script>
-    // EmulatorJS configuration
-    EJS_player = "#game"; // DOM selector
-    EJS_core = "nds"; // Nintendo DS
-    EJS_gameUrl = "roms/GTA-Chinatown-Wars.nds"; // Your ROM path
-    EJS_biosUrl = ""; // Optional: leave blank unless needed
-    EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/"; // Loads from official EmulatorJS CDN
+  <div id="romInfo">No ROM loaded.</div>
 
-    EJS_fullscreenOnLoaded = true;
-    EJS_startOnLoaded = true;
-    EJS_AdUrl = ""; // Ensures NO ads
-  </script>
+  <div id="dropZone">Drag & Drop your .nds ROM here or <button id="loadRomBtn">Select ROM</button></div>
+  <input type="file" id="fileInput" accept=".nds,.zip" />
 
-  <script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>
+  <div id="controls">
+    <button id="btnStart">Start</button>
+    <button id="btnPause">Pause</button>
+    <button id="btnResume" disabled>Resume</button>
+    <button id="btnFastForward">Fast Forward</button>
+    <button id="btnNormalSpeed" disabled>Normal Speed</button>
+    <button id="btnFullscreen">Fullscreen</button>
+    <button id="btnScreenshot">Screenshot</button>
+    <button id="btnExportSave" disabled>Export Save</button>
+    <button id="btnImportSave">Import Save</button>
+    <input type="file" id="importSaveFile" accept=".sav" style="display:none" />
+    <label for="volumeRange">Volume:</label>
+    <input type="range" id="volumeRange" min="0" max="1" step="0.05" value="0.8" />
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/emulatorjs@1.0.11/dist/emu.min.js"></script>
+
+<script>
+  // Reference to emulator instance
+  let emu = null;
+
+  // Container elements
+  const screen = document.getElementById('screen');
+  const romInfo = document.getElementById('romInfo');
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const importSaveFile = document.getElementById('importSaveFile');
+
+  // Buttons
+  const btnStart = document.getElementById('btnStart');
+  const btnPause = document.getElementById('btnPause');
+  const btnResume = document.getElementById('btnResume');
+  const btnFastForward = document.getElementById('btnFastForward');
+  const btnNormalSpeed = document.getElementById('btnNormalSpeed');
+  const btnFullscreen = document.getElementById('btnFullscreen');
+  const btnScreenshot = document.getElementById('btnScreenshot');
+  const btnExportSave = document.getElementById('btnExportSave');
+  const btnImportSave = document.getElementById('btnImportSave');
+  const volumeRange = document.getElementById('volumeRange');
+
+  const loadRomBtn = document.getElementById('loadRomBtn');
+
+  // Utility: Save state key name for localStorage
+  const SAVE_STATE_KEY = 'nds_emulator_save_state';
+  const BATTERY_SAVE_KEY = 'nds_emulator_battery_save';
+
+  // Load and start emulator with a ROM ArrayBuffer
+  async function startEmulator(romBuffer) {
+    if (emu) {
+      emu.stop();
+      emu = null;
+      screen.innerHTML = '';
+    }
+
+    romInfo.textContent = 'Loading ROM...';
+
+    // Create EmulatorJS instance (NDS mode)
+    emu = new EmulatorJS({
+      romBuffer: romBuffer,
+      system: 'nds',
+      onReady: () => {
+        romInfo.textContent = `ROM loaded: ${emu.romName || "Unknown"}`;
+        btnExportSave.disabled = false;
+        // Auto load save if found
+        loadBatterySave();
+        btnStart.disabled = true;
+        btnPause.disabled = false;
+        btnResume.disabled = true;
+      },
+      onSaveState: (state) => {
+        // Save state to localStorage
+        try {
+          localStorage.setItem(SAVE_STATE_KEY, JSON.stringify(state));
+        } catch(e) {
+          console.warn('Failed to save state:', e);
+        }
+      },
+      onLoadState: () => {
+        console.log('State loaded');
+      },
+      onBatterySave: (saveData) => {
+        // saveData is Uint8Array of .sav file
+        try {
+          localStorage.setItem(BATTERY_SAVE_KEY, JSON.stringify(Array.from(saveData)));
+        } catch(e) {
+          console.warn('Failed to save battery save:', e);
+        }
+      },
+      volume: volumeRange.value
+    });
+
+    // Append emulator canvas or iframe to screen
+    screen.appendChild(emu.canvas);
+
+    // Start emulator automatically
+    emu.start();
+    btnPause.disabled = false;
+    btnStart.disabled = true;
+  }
+
+  // Load ROM from File input
+  fileInput.addEventListener('change', async (e) => {
+    if (e.target.files.length) {
+      const file = e.target.files[0];
+      const buffer = await file.arrayBuffer();
+      await startEmulator(buffer);
+    }
+  });
+
+  // Load ROM from drag & drop
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+  });
+  dropZone.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) {
+      const file = e.dataTransfer.files[0];
+      const buffer = await file.arrayBuffer();
+      await startEmulator(buffer);
+    }
+  });
+
+  loadRomBtn.addEventListener('click', () => fileInput.click());
+
+  // Pause/Resume buttons
+  btnPause.addEventListener('click', () => {
+    if (emu) {
+      emu.pause();
+      btnPause.disabled = true;
+      btnResume.disabled = false;
+    }
+  });
+
+  btnResume.addEventListener('click', () => {
+    if (emu) {
+      emu.resume();
+      btnPause.disabled = false;
+      btnResume.disabled = true;
+    }
+  });
+
+  // Fast-forward / Normal speed toggle
+  btnFastForward.addEventListener('click', () => {
+    if (emu) {
+      emu.setSpeed(2); // 2x speed
+      btnFastForward.disabled = true;
+      btnNormalSpeed.disabled = false;
+    }
+  });
+  btnNormalSpeed.addEventListener('click', () => {
+    if (emu) {
+      emu.setSpeed(1); // normal speed
+      btnFastForward.disabled = false;
+      btnNormalSpeed.disabled = true;
+    }
+  });
+
+  // Fullscreen toggle
+  btnFullscreen.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      screen.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  // Volume control
+  volumeRange.addEventListener('input', () => {
+    if (emu) {
+      emu.setVolume(parseFloat(volumeRange.value));
+    }
+  });
+
+  // Screenshot capture
+  btnScreenshot.addEventListener('click', () => {
+    if (!emu) return;
+    emu.canvas.toBlob((blob) => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (emu.romName ? emu.romName.replace(/\s+/g, '_') : 'screenshot') + '.png';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  });
+
+  // Export battery save file (.sav)
+  btnExportSave.addEventListener('click', () => {
+    if (!emu) return;
+    const saveJson = localStorage.getItem(BATTERY_SAVE_KEY);
+    if (!saveJson) {
+      alert('No save data available.');
+      return;
+    }
+    const arr = JSON.parse(saveJson);
+    const blob = new Blob([new Uint8Array(arr)], { type: 'application/octet-stream' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (emu.romName ? emu.romName.replace(/\s+/g, '_') : 'save') + '.sav';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  // Import battery save file (.sav)
+  btnImportSave.addEventListener('click', () => {
+    importSaveFile.click();
+  });
+  importSaveFile.addEventListener('change', async (e) => {
+    if (!emu) {
+      alert('Load a ROM first!');
+      return;
+    }
+    const file = e.target.files[0];
+    if (!file) return;
+    const saveData = new Uint8Array(await file.arrayBuffer());
+    emu.importBatterySave(saveData);
+    // Save to localStorage as well
+    localStorage.setItem(BATTERY_SAVE_KEY, JSON.stringify(Array.from(saveData)));
+    alert('Save imported!');
+  });
+
+  // Auto load save from localStorage on ROM load
+  function loadBatterySave() {
+    const saveJson = localStorage.getItem(BATTERY_SAVE_KEY);
+    if (!saveJson || !emu) return;
+    try {
+      const arr = new Uint8Array(JSON.parse(saveJson));
+      emu.importBatterySave(arr);
+    } catch(e) {
+      console.warn('Failed to import save:', e);
+    }
+  }
+
+  // On load, check if saved state available and ask user if want to restore
+  window.addEventListener('load', () => {
+    const savedState = localStorage.getItem(SAVE_STATE_KEY);
+    if (savedState) {
+      if (confirm('Load previous save state?')) {
+        // Note: We need a running emulator instance to load state
+        // So user should first load a ROM and then we can load state
+      }
+    }
+  });
+
+  // Keyboard mapping / on-screen controls - basic example (optional for now)
+
+</script>
+
 </body>
 </html>
