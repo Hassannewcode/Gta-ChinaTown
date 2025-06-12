@@ -1,265 +1,326 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GTA 2 - Play Online | Advanced Embed</title>
-
-  <!-- Injected CSS via JS, but fallback base style here -->
-  <style>
-    body, html {
-      margin: 0; padding: 0; height: 100%;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0d0d0d;
-      color: #eee;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    header {
-      background: #1a1a1a;
-      padding: 15px 20px;
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      color: #f5a623;
-      user-select: none;
-      text-align: center;
-      box-shadow: 0 2px 6px #f5a62388;
-    }
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #000;
-      position: relative;
-      overflow: hidden;
-      padding: 15px;
-    }
-    #game-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 960px;
-      aspect-ratio: 16 / 10;
-      box-shadow: 0 0 24px #f5a623cc;
-      border-radius: 10px;
-      background: #111;
-      overflow: hidden;
-    }
-    iframe#gta2-iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-      display: block;
-      border-radius: 10px;
-    }
-    #loading-screen {
-      position: absolute;
-      inset: 0;
-      background: #121212dd;
-      color: #f5a623;
-      font-size: 1.3rem;
-      font-weight: 600;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      transition: opacity 0.3s ease;
-      z-index: 10;
-      user-select: none;
-    }
-    #loading-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    #loading-spinner {
-      border: 5px solid #222;
-      border-top: 5px solid #f5a623;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      animation: spin 1.2s linear infinite;
-      margin-bottom: 12px;
-    }
-    @keyframes spin {
-      0% {transform: rotate(0deg);}
-      100% {transform: rotate(360deg);}
-    }
-    #fullscreen-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #f5a623cc;
-      border: none;
-      padding: 8px 14px;
-      font-size: 0.9rem;
-      border-radius: 6px;
-      cursor: pointer;
-      color: #111;
-      font-weight: 700;
-      user-select: none;
-      z-index: 15;
-      transition: background-color 0.2s ease;
-    }
-    #fullscreen-btn:hover {
-      background: #f5a623ee;
-    }
-    /* Disqus Comments Section */
-    #disqus_thread {
-      max-width: 960px;
-      width: 95%;
-      margin: 30px auto 40px auto;
-      background: #181818;
-      border-radius: 10px;
-      padding: 15px 20px;
-      box-shadow: 0 0 20px #f5a62399;
-    }
-    footer {
-      text-align: center;
-      padding: 10px 15px;
-      font-size: 0.85rem;
-      color: #777;
-      background: #111;
-      user-select: none;
-    }
-    /* Responsive */
-    @media (max-width: 700px) {
-      #game-wrapper {
-        max-width: 100%;
-        aspect-ratio: auto;
-        height: 320px;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GTA 2 - PS1 Emulator</title>
+<style>
+  /* Dark gray theme: blacks and grays only */
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: #121212;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: #bbb;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #emu-container {
+    position: relative;
+    max-width: 960px;
+    aspect-ratio: 4 / 3;
+    margin: 1rem auto 0;
+    border-radius: 8px;
+    box-shadow: 0 0 20px #333;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #emu {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    background: #000;
+    image-rendering: pixelated;
+  }
+  #fullscreen-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #333;
+    border: none;
+    padding: 8px 14px;
+    font-weight: 600;
+    color: #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    z-index: 10;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  #fullscreen-btn:hover {
+    background: #555;
+  }
+  #control-console {
+    max-width: 960px;
+    margin: 1rem auto 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  button.control-btn {
+    background: #333;
+    border: none;
+    padding: 10px 18px;
+    font-weight: 600;
+    color: #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    min-width: 110px;
+    text-align: center;
+  }
+  button.control-btn:hover {
+    background: #555;
+  }
+  label.control-label {
+    color: #bbb;
+    user-select: none;
+    font-weight: 600;
+    margin: 0 0 0 10px;
+  }
+  select.control-select, input[type="range"] {
+    -webkit-appearance: none;
+    background: #222;
+    border-radius: 6px;
+    border: 1px solid #444;
+    color: #bbb;
+    font-weight: 600;
+    padding: 4px 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  input[type="range"] {
+    width: 150px;
+  }
+  #status {
+    max-width: 960px;
+    margin: 0 auto 1rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    user-select: none;
+    color: #bbb;
+  }
+  #controls-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    justify-content: center;
+  }
+</style>
 </head>
 <body>
 
-  <header>Grand Theft Auto 2 - Play Online</header>
+<main id="emu-container" role="region" aria-label="Play GTA 2 PS1 Emulator">
+  <div id="emu" aria-busy="true" aria-live="polite" aria-label="Emulator game screen"></div>
+  <button id="fullscreen-btn" aria-label="Toggle fullscreen">Fullscreen</button>
+</main>
 
-  <main>
-    <div id="game-wrapper">
-      <iframe
-        id="gta2-iframe"
-        src="https://gamesfrog.com/games/ps1/grand-theft-auto-2/iframe"
-        allowfullscreen
-        scrolling="no"
-        title="GTA 2 Online Game"
-      ></iframe>
+<div id="control-console" role="toolbar" aria-label="Emulator controls">
+  <button id="start-pause-btn" class="control-btn" aria-pressed="true">Pause</button>
+  <button id="reset-btn" class="control-btn">Reset</button>
+  <button id="mute-btn" class="control-btn" aria-pressed="false">Mute</button>
+  <div id="controls-group">
+    <label for="scale-select" class="control-label">Scale:</label>
+    <select id="scale-select" class="control-select" aria-label="Select display scale">
+      <option value="1">1x</option>
+      <option value="1.5">1.5x</option>
+      <option value="2" selected>2x</option>
+      <option value="3">3x</option>
+    </select>
+  </div>
+  <div id="controls-group">
+    <label for="filter-select" class="control-label">Filter:</label>
+    <select id="filter-select" class="control-select" aria-label="Select pixel filter">
+      <option value="pixelated" selected>Nearest</option>
+      <option value="auto">Linear</option>
+    </select>
+  </div>
+  <div id="controls-group">
+    <label for="speed-range" class="control-label">Speed:</label>
+    <input type="range" id="speed-range" min="50" max="200" step="10" value="100" aria-valuemin="50" aria-valuemax="200" aria-valuenow="100" aria-label="Emulation speed percentage" />
+    <span id="speed-value">100%</span>
+  </div>
+  <div id="controls-group">
+    <label for="volume-range" class="control-label">Volume:</label>
+    <input type="range" id="volume-range" min="0" max="100" step="1" value="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-label="Sound volume control" />
+    <span id="volume-value">100%</span>
+  </div>
+</div>
 
-      <div id="loading-screen">
-        <div id="loading-spinner"></div>
-        Loading GTA 2, please wait...
-      </div>
+<div id="status" role="status" aria-live="polite">Status: Running | Sound: Unmuted</div>
 
-      <button id="fullscreen-btn" aria-label="Toggle fullscreen">Fullscreen</button>
-    </div>
-  </main>
+<script>
+  // Emulator config
+  window.NepPlayer = "#emu";
+  window.NepEmu = "psx";
+  window.NepLang = "en";
+  window.gameUrl = "https://gamesfrog.com/files/PS1/grand-theft-auto-2.pbp";
 
-  <section id="disqus_thread"></section>
+  // Load emulator script
+  const script = document.createElement('script');
+  script.src = 'https://mem.neptunjs.com/njs/njsLoader.js';
+  script.async = true;
+  script.onload = () => {
+    document.getElementById('emu').setAttribute('aria-busy', 'false');
+    bindControls();
+  };
+  script.onerror = () => {
+    alert('Failed to load emulator script. Please check your connection.');
+  };
+  document.body.appendChild(script);
 
-  <footer>
-    &copy; 2025 GamesFrog - All rights reserved.
-  </footer>
+  // Elements
+  const emuContainer = document.getElementById('emu-container');
+  const emuDiv = document.getElementById('emu');
+  const fullscreenBtn = document.getElementById('fullscreen-btn');
+  const startPauseBtn = document.getElementById('start-pause-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const muteBtn = document.getElementById('mute-btn');
+  const scaleSelect = document.getElementById('scale-select');
+  const filterSelect = document.getElementById('filter-select');
+  const speedRange = document.getElementById('speed-range');
+  const speedValue = document.getElementById('speed-value');
+  const volumeRange = document.getElementById('volume-range');
+  const volumeValue = document.getElementById('volume-value');
+  const statusDiv = document.getElementById('status');
 
-  <script>
-    (() => {
-      // Load external CSS dynamically for style.min.css
-      const loadCSS = (href) => {
-        return new Promise((res, rej) => {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = href;
-          link.onload = () => res(true);
-          link.onerror = () => rej(new Error(`Failed to load CSS: ${href}`));
-          document.head.appendChild(link);
-        });
-      };
+  // Fullscreen toggle
+  fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      if (emuContainer.requestFullscreen) {
+        emuContainer.requestFullscreen();
+      } else if (emuContainer.webkitRequestFullscreen) {
+        emuContainer.webkitRequestFullscreen();
+      } else if (emuContainer.msRequestFullscreen) {
+        emuContainer.msRequestFullscreen();
+      }
+      fullscreenBtn.textContent = 'Exit Fullscreen';
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+      fullscreenBtn.textContent = 'Fullscreen';
+    }
+  });
+  document.addEventListener('fullscreenchange', () => {
+    fullscreenBtn.textContent = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
+  });
 
-      // Load external JS dynamically for app.min.js
-      const loadJS = (src) => {
-        return new Promise((res, rej) => {
-          const script = document.createElement('script');
-          script.src = src;
-          script.defer = true;
-          script.onload = () => res(true);
-          script.onerror = () => rej(new Error(`Failed to load JS: ${src}`));
-          document.head.appendChild(script);
-        });
-      };
+  // Bind emulator controls once emulator is loaded
+  function bindControls() {
+    // Emulator API exposed on window.ps1 if loaded?
+    const psxEmulator = window.ps1;
 
-      const loadingScreen = document.getElementById('loading-screen');
-      const iframe = document.getElementById('gta2-iframe');
-      const fullscreenBtn = document.getElementById('fullscreen-btn');
+    if (!psxEmulator) {
+      console.warn('Emulator API not detected, controls may not function.');
+    }
 
-      // Remove loading screen once iframe fully loads
-      iframe.addEventListener('load', () => {
-        loadingScreen.classList.add('hidden');
-      });
+    // Start/Pause toggle
+    startPauseBtn.addEventListener('click', () => {
+      if (startPauseBtn.textContent === 'Pause') {
+        if (psxEmulator && psxEmulator.pause) psxEmulator.pause();
+        startPauseBtn.textContent = 'Start';
+        startPauseBtn.setAttribute('aria-pressed', 'false');
+        updateStatus('Paused');
+      } else {
+        if (psxEmulator && psxEmulator.start) psxEmulator.start();
+        startPauseBtn.textContent = 'Pause';
+        startPauseBtn.setAttribute('aria-pressed', 'true');
+        updateStatus('Running');
+      }
+    });
 
-      // In case iframe errors (fallback)
-      iframe.addEventListener('error', () => {
-        loadingScreen.innerHTML = `<p style="color:#ff5555;">Failed to load GTA 2 game.<br>Please try refreshing the page.</p>`;
-      });
+    // Reset
+    resetBtn.addEventListener('click', () => {
+      if (psxEmulator && psxEmulator.reset) psxEmulator.reset();
+      updateStatus('Reset');
+    });
 
-      // Fullscreen toggle handler
-      fullscreenBtn.addEventListener('click', () => {
-        const elem = document.getElementById('game-wrapper');
-        if (!document.fullscreenElement) {
-          if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-          } else if (elem.webkitRequestFullscreen) {
-            elem.webkitRequestFullscreen();
-          } else if (elem.msRequestFullscreen) {
-            elem.msRequestFullscreen();
-          }
-          fullscreenBtn.textContent = 'Exit Fullscreen';
-        } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-          }
-          fullscreenBtn.textContent = 'Fullscreen';
-        }
-      });
+    // Mute toggle
+    muteBtn.addEventListener('click', () => {
+      if (muteBtn.textContent === 'Mute') {
+        if (psxEmulator && psxEmulator.setVolume) psxEmulator.setVolume(0);
+        muteBtn.textContent = 'Unmute';
+        muteBtn.setAttribute('aria-pressed', 'true');
+        volumeRange.value = 0;
+        volumeValue.textContent = '0%';
+        updateStatus('Muted');
+      } else {
+        if (psxEmulator && psxEmulator.setVolume) psxEmulator.setVolume(volumeRange.value / 100);
+        muteBtn.textContent = 'Mute';
+        muteBtn.setAttribute('aria-pressed', 'false');
+        volumeValue.textContent = volumeRange.value + '%';
+        updateStatus('Unmuted');
+      }
+    });
 
-      // Reset button text on fullscreen change (for ESC key or other)
-      document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement) {
-          fullscreenBtn.textContent = 'Fullscreen';
-        } else {
-          fullscreenBtn.textContent = 'Exit Fullscreen';
-        }
-      });
+    // Scale change
+    scaleSelect.addEventListener('change', () => {
+      const scale = parseFloat(scaleSelect.value);
+      if (scale && emuDiv) {
+        emuDiv.style.width = (640 * scale) + 'px';
+        emuDiv.style.height = (480 * scale) + 'px';
+        updateStatus(`Scale set to ${scale}x`);
+      }
+    });
 
-      // Initialize - load external CSS and JS
-      Promise.all([
-        loadCSS('https://gamesfrog.com/css/style.min.css?_v=17e2be94'),
-        loadJS('https://gamesfrog.com/js/app.min.js?_v=17e2be94')
-      ]).catch(err => {
-        console.error(err);
-        loadingScreen.innerHTML = `<p style="color:#ff5555;">Failed to load game resources.<br>Please check your connection and reload.</p>`;
-      });
+    // Filter change
+    filterSelect.addEventListener('change', () => {
+      const filter = filterSelect.value;
+      if (filter === 'pixelated') {
+        emuDiv.style.imageRendering = 'pixelated';
+      } else {
+        emuDiv.style.imageRendering = 'auto';
+      }
+      updateStatus(`Filter set to ${filter === 'pixelated' ? 'Nearest (pixelated)' : 'Linear (smooth)'}`);
+    });
 
-      // Disqus embed
-      var disqus_config = function () {
-        this.page.url = window.location.href;
-        this.page.identifier = 'gta2-gamesfrog-advanced';
-      };
-      (function() {
-        var d = document, s = d.createElement('script');
-        s.src = 'https://emulatorgamesonline.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-      })();
+    // Speed change
+    speedRange.addEventListener('input', () => {
+      speedValue.textContent = speedRange.value + '%';
+      if (psxEmulator && psxEmulator.setSpeed) {
+        psxEmulator.setSpeed(speedRange.value / 100);
+      }
+      updateStatus(`Speed set to ${speedRange.value}%`);
+    });
 
-    })();
-  </script>
+    // Volume change
+    volumeRange.addEventListener('input', () => {
+      volumeValue.textContent = volumeRange.value + '%';
+      if (psxEmulator && psxEmulator.setVolume) {
+        psxEmulator.setVolume(volumeRange.value / 100);
+      }
+      if (parseInt(volumeRange.value) === 0) {
+        muteBtn.textContent = 'Unmute';
+        muteBtn.setAttribute('aria-pressed', 'true');
+        updateStatus('Muted');
+      } else {
+        muteBtn.textContent = 'Mute';
+        muteBtn.setAttribute('aria-pressed', 'false');
+        updateStatus('Unmuted');
+      }
+    });
+  }
 
-  <noscript>Please enable JavaScript to play GTA 2 and view comments.</noscript>
-
+  // Status updater
+  function updateStatus(msg) {
+    let soundStatus = muteBtn && muteBtn.textContent === 'Unmute' ? 'Muted' : 'Unmuted';
+    statusDiv.textContent = `Status: ${msg} | Sound: ${soundStatus}`;
+  }
+</script>
 </body>
 </html>
