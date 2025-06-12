@@ -1,99 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>GTA Chinatown Wars Emulator - Demo</title>
-<style>
-  html, body {
-    margin: 0; padding: 0;
-    background: #111;
-    font-family: monospace, monospace;
-    height: 100vh; width: 100vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-  }
+  <meta charset="UTF-8" />
+  <title>GTA Chinatown Wars - Fake Emulator</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      font-family: monospace, monospace;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
 
-  .emulator-frame {
-    background: #222;
-    border: 10px solid #444;
-    border-radius: 12px;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-    padding: 20px;
-    text-align: center;
-    width: 960px;
-    height: 720px;
-    display: flex;
-    flex-direction: column;
-  }
+    .emulator-frame {
+      background: #222;
+      border: 10px solid #444;
+      border-radius: 12px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      text-align: center;
+      width: 960px;
+      height: 720px;
+      display: flex;
+      flex-direction: column;
+    }
 
-  .screen {
-    position: relative;
-    flex-grow: 1;
-    border: 6px inset #555;
-    background: radial-gradient(circle at center, #000 40%, #111 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #0f0;
-    font-size: 24px;
-    user-select: none;
-    font-weight: bold;
-    letter-spacing: 2px;
-  }
+    .screen {
+      flex-grow: 1;
+      border: 6px inset #555;
+      background: radial-gradient(circle at center, #000 40%, #111 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #0f0;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      position: relative;
+      user-select: none;
+    }
 
-  .screen::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      repeating-linear-gradient(
-        0deg,
-        rgba(0,255,0,0.05),
-        rgba(0,255,0,0.05) 2px,
-        transparent 2px,
-        transparent 4px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        rgba(0,255,0,0.05),
-        rgba(0,255,0,0.05) 2px,
-        transparent 2px,
-        transparent 4px
-      );
-  }
+    .screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(0,255,0,0.05),
+          rgba(0,255,0,0.05) 2px,
+          transparent 2px,
+          transparent 4px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(0,255,0,0.05),
+          rgba(0,255,0,0.05) 2px,
+          transparent 2px,
+          transparent 4px
+        );
+    }
 
-  .label {
-    margin-top: 10px;
-    color: #0f0;
-    font-size: 14px;
-    user-select: none;
-  }
+    .label {
+      margin-top: 10px;
+      color: #0f0;
+      font-size: 14px;
+      user-select: none;
+    }
 
-  /* Simple blinking cursor effect */
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
 
-  .loading-text::after {
-    content: "_";
-    animation: blink 1s infinite;
-  }
-</style>
+    .loading-text::after {
+      content: "_";
+      animation: blink 1s infinite;
+    }
+  </style>
 </head>
 <body>
-  <div class="emulator-frame" role="main" aria-label="Emulator Frame">
-    <div class="screen" aria-live="polite" aria-atomic="true" aria-relevant="text">
+  <div class="emulator-frame" role="main" aria-label="Fake Emulator UI">
+    <div class="screen" aria-live="polite" aria-atomic="true">
       <div id="loading" class="loading-text">Loading GTA Chinatown Wars...</div>
     </div>
-    <div class="label">GTA Chinatown Wars - Emulator Demo (No ROM / No Ads)</div>
+    <div class="label">Fake Emulator UI – No ROM, No Ads, No EmulatorJS</div>
   </div>
 
   <script>
-    // Simple fake loading animation text
     const loading = document.getElementById('loading');
     const dots = ['.', '..', '...', '....', '.....'];
     let index = 0;
@@ -101,7 +101,7 @@
     setInterval(() => {
       loading.textContent = `Loading GTA Chinatown Wars${dots[index]}`;
       index = (index + 1) % dots.length;
-    }, 700);
+    }, 600);
   </script>
 </body>
 </html>
