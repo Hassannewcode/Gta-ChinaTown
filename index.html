@@ -2,109 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GTA 2 - Web Emulator</title>
+  <title>GTA 2 Web Emulator</title>
   <style>
-    /* Dark gray theme */
-    body, html {
-      margin: 0; padding: 0; height: 100%; background: #1e1e1e; color: #ddd; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    html, body {
+      margin: 0; padding: 0; height: 100%; background: #1e1e1e; color: #ddd;
+      font-family: Arial, sans-serif;
       overflow: hidden;
+      display: flex; justify-content: center; align-items: center;
     }
     #emu {
-      width: 100vw; height: 100vh;
+      width: 100vw;
+      height: 100vh;
       background: #000;
+      outline: none;
     }
-    #controlMenu {
+    #control-panel {
       position: fixed;
-      top: 10px; right: 10px;
-      background: #2e2e2e;
+      top: 10px;
+      left: 10px;
+      background: #2c2c2c;
+      padding: 10px 15px;
       border-radius: 8px;
-      padding: 12px;
-      width: 220px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.7);
-      z-index: 1000;
-    }
-    #controlMenu h2 {
-      margin-top: 0;
-      font-size: 18px;
       color: #ccc;
-    }
-    #controlMenu button, #controlMenu select {
-      width: 100%;
-      margin: 6px 0;
-      padding: 8px;
       font-size: 14px;
-      border-radius: 4px;
-      border: none;
-      background: #444;
-      color: #eee;
-      cursor: pointer;
-      transition: background 0.3s ease;
+      z-index: 9999;
+      user-select: none;
     }
-    #controlMenu button:hover, #controlMenu select:hover {
-      background: #555;
+    #control-panel button {
+      background: #444;
+      border: none;
+      color: #ddd;
+      padding: 5px 10px;
+      margin: 0 5px 0 0;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #control-panel button:hover {
+      background: #666;
     }
   </style>
 </head>
 <body>
+  <div id="emu" tabindex="0"></div>
 
-  <!-- Emulator container -->
-  <div id="emu"></div>
-
-  <!-- Control menu -->
-  <div id="controlMenu">
-    <h2>Emulator Controls</h2>
-    <button id="fullscreenBtn">Toggle Fullscreen</button>
-    <select id="graphicsSelect" title="Graphics quality">
-      <option value="low">Low Graphics</option>
-      <option value="medium" selected>Medium Graphics</option>
-      <option value="high">High Graphics</option>
-    </select>
-    <button id="resetBtn">Reset Emulator</button>
+  <div id="control-panel">
+    <button id="fullscreen-btn">Fullscreen</button>
+    <!-- You can add more controls here -->
   </div>
 
   <script>
-    // Fullscreen toggle
-    const emu = document.getElementById('emu');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    // Emulator config variables must be global BEFORE loading the script
+    var NepPlayer = "#emu";
+    var NepEmu = "psx";
+    var NepLang = "en";
 
-    fullscreenBtn.addEventListener('click', () => {
+    // IMPORTANT: Make sure this URL matches your uploaded .pbp file location
+    var gameUrl = "https://hassannewcode.github.io/Gta-ChinaTown/grand-theft-auto-2.pbp";
+
+    var EmuGbaBios = "enable";
+
+    // Fullscreen button logic
+    document.getElementById('fullscreen-btn').addEventListener('click', function () {
+      const elem = document.getElementById('emu');
       if (!document.fullscreenElement) {
-        emu.requestFullscreen().catch(err => {
-          alert(`Fullscreen error: ${err.message}`);
+        elem.requestFullscreen().catch(err => {
+          alert(`Error attempting to enable fullscreen: ${err.message}`);
         });
       } else {
         document.exitFullscreen();
       }
     });
-
-    // Graphics quality control (dummy placeholder)
-    const graphicsSelect = document.getElementById('graphicsSelect');
-    graphicsSelect.addEventListener('change', (e) => {
-      const quality = e.target.value;
-      console.log('Selected graphics quality:', quality);
-      // You can add real emulator graphics quality control here if supported
-    });
-
-    // Reset emulator button (reload page)
-    const resetBtn = document.getElementById('resetBtn');
-    resetBtn.addEventListener('click', () => {
-      location.reload();
-    });
   </script>
 
-  <script type="text/javascript">
-    var NepPlayer = "#emu";
-    var NepEmu = "psx";
-    var NepLang = "en";
-    var gameUrl = "https://gamesfrog.com/files/PS1/grand-theft-auto-2.pbp";
-    var EmuGbaBios = "enable";
-
-    // Load emulator loader script - renamed variable to avoid conflicts
-    var emulatorScript = document.createElement('script');
-    emulatorScript.setAttribute('src', 'https://mem.neptunjs.com/njs/njsLoader.js');
-    document.body.appendChild(emulatorScript);
-  </script>
-
+  <!-- Load the emulator script synchronously AFTER all variables -->
+  <script src="https://mem.neptunjs.com/njs/njsLoader.js"></script>
 </body>
 </html>
