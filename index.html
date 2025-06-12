@@ -2,229 +2,116 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GTA 2 - PSX Emulator</title>
+  <title>GTA 2 - PS1 Emulator</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
+    html, body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #1a1a1a;
-      color: #ccc;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
+      padding: 0;
       background: #111;
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.5rem;
-      color: #eee;
+      color: #ccc;
+      font-family: Arial, sans-serif;
+      height: 100%;
+      overflow: hidden;
     }
+
     #emu {
-      flex: 1;
-      background: #000;
+      width: 100%;
+      height: calc(100vh - 50px);
+      background: black;
+    }
+
+    #controls {
+      background: #1a1a1a;
+      height: 50px;
       display: flex;
-      justify-content: center;
       align-items: center;
+      padding: 0 10px;
+      box-shadow: 0 0 10px #000;
     }
-    #emu canvas {
-      max-width: 100%;
-      max-height: 100%;
-      image-rendering: pixelated;
-    }
-    .controls {
-      background: #222;
-      padding: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-    }
-    .controls > * {
+
+    #controls button {
       background: #333;
       border: none;
       color: #ccc;
-      padding: 0.5rem 1rem;
+      padding: 8px 12px;
+      margin-right: 10px;
       border-radius: 4px;
       cursor: pointer;
     }
-    .controls input[type="range"] {
-      width: 100px;
-    }
-    .status {
-      text-align: center;
-      padding: 0.5rem;
-      font-size: 0.9rem;
-      color: #999;
-    }
-    .fullscreen-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
+
+    #controls button:hover {
       background: #444;
-      padding: 0.5rem;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-      font-size: 0.8rem;
     }
   </style>
 </head>
 <body>
-  <header>GTA 2 - PlayStation Emulator</header>
-
-  <div id="emu-container" style="position: relative; flex: 1;">
-    <div id="emu" style="width: 640px; height: 480px; margin: auto;"></div>
-    <div class="fullscreen-btn" onclick="toggleFullscreen()">Fullscreen</div>
+  <div id="controls">
+    <button onclick="toggleFullscreen()">Fullscreen</button>
+    <button onclick="restartGame()">Restart</button>
+    <button onclick="downloadSav()">Download Save</button>
+    <button onclick="uploadSav()">Upload Save</button>
+    <input type="file" id="saveInput" style="display: none;" />
   </div>
 
-  <div class="controls">
-    <button id="startPauseBtn">Pause</button>
-    <button id="resetBtn">Reset</button>
-    <button id="muteBtn">Mute</button>
-
-    <label>
-      Scale:
-      <select id="scaleSelect">
-        <option value="1">1x</option>
-        <option value="1.5">1.5x</option>
-        <option value="2" selected>2x</option>
-        <option value="3">3x</option>
-      </select>
-    </label>
-
-    <label>
-      Filter:
-      <select id="filterSelect">
-        <option value="pixelated">Pixelated</option>
-        <option value="smooth">Smooth</option>
-      </select>
-    </label>
-
-    <label>
-      Speed:
-      <input type="range" id="speedRange" min="50" max="200" value="100">
-      <span id="speedValue">100%</span>
-    </label>
-
-    <label>
-      Volume:
-      <input type="range" id="volumeRange" min="0" max="100" value="100">
-      <span id="volumeValue">100%</span>
-    </label>
-  </div>
-
-  <div class="status" id="status">Status: Running | Sound: Unmuted</div>
+  <div id="emu"></div>
 
   <script>
-    const emuDiv = document.getElementById('emu');
-    const startPauseBtn = document.getElementById('startPauseBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const muteBtn = document.getElementById('muteBtn');
-    const scaleSelect = document.getElementById('scaleSelect');
-    const filterSelect = document.getElementById('filterSelect');
-    const speedRange = document.getElementById('speedRange');
-    const volumeRange = document.getElementById('volumeRange');
-    const speedValue = document.getElementById('speedValue');
-    const volumeValue = document.getElementById('volumeValue');
-    const statusDiv = document.getElementById('status');
+    // Emulator config
+    var NepPlayer = "#emu";
+    var NepEmu = "psx";
+    var NepLang = "en";
+    var gameUrl = "https://hassannewcode.github.io/Gta-ChinaTown/grand-theft-auto-2.pbp";
+    var EmuGbaBios = "enable";
 
-    // Fullscreen
+    // Load NeptunJS
+    const script = document.createElement("script");
+    script.src = "https://mem.neptunjs.com/njs/njsLoader.js";
+    document.body.appendChild(script);
+
+    // Fullscreen toggle
     function toggleFullscreen() {
-      const container = document.getElementById('emu-container');
+      const elem = document.getElementById("emu");
       if (!document.fullscreenElement) {
-        container.requestFullscreen();
+        elem.requestFullscreen();
       } else {
         document.exitFullscreen();
       }
     }
 
-    // Emulator Settings
-    var NepPlayer = "#emu";
-    var NepEmu = "psx";
-    var NepLang = "en";
-    var gameUrl = "https://gamesfrog.com/files/PS1/grand-theft-auto-2.pbp";
-    var EmuGbaBios = "enable";
-
-    var script = document.createElement('script');
-    script.src = 'https://mem.neptunjs.com/njs/njsLoader.js';
-    document.body.appendChild(script);
-
-    let psxEmulator = null;
-
-    // Wait for emulator to initialize
-    script.onload = () => {
-      const check = setInterval(() => {
-        if (window.ps1 && window.ps1.setVolume) {
-          psxEmulator = window.ps1;
-          psxEmulator.setVolume(1);
-          clearInterval(check);
-        }
-      }, 100);
-    };
-
-    // Controls
-    startPauseBtn.addEventListener('click', () => {
-      if (!psxEmulator) return;
-      const isRunning = startPauseBtn.textContent === 'Pause';
-      isRunning ? psxEmulator.pause() : psxEmulator.start();
-      startPauseBtn.textContent = isRunning ? 'Start' : 'Pause';
-      updateStatus(isRunning ? 'Paused' : 'Running');
-    });
-
-    resetBtn.addEventListener('click', () => {
-      if (psxEmulator && psxEmulator.reset) psxEmulator.reset();
-      updateStatus('Reset');
-    });
-
-    muteBtn.addEventListener('click', () => {
-      if (!psxEmulator) return;
-      const isMuted = muteBtn.textContent === 'Unmute';
-      psxEmulator.setVolume(isMuted ? volumeRange.value / 100 : 0);
-      muteBtn.textContent = isMuted ? 'Mute' : 'Unmute';
-      updateStatus(isMuted ? 'Unmuted' : 'Muted');
-    });
-
-    scaleSelect.addEventListener('change', () => {
-      const scale = parseFloat(scaleSelect.value);
-      emuDiv.style.width = (640 * scale) + 'px';
-      emuDiv.style.height = (480 * scale) + 'px';
-      updateStatus(`Scale: ${scale}x`);
-    });
-
-    filterSelect.addEventListener('change', () => {
-      emuDiv.style.imageRendering = filterSelect.value === 'pixelated' ? 'pixelated' : 'auto';
-      updateStatus(`Filter: ${filterSelect.value}`);
-    });
-
-    speedRange.addEventListener('input', () => {
-      const val = parseInt(speedRange.value);
-      speedValue.textContent = val + '%';
-      if (psxEmulator && psxEmulator.setSpeed) psxEmulator.setSpeed(val / 100);
-      updateStatus(`Speed: ${val}%`);
-    });
-
-    volumeRange.addEventListener('input', () => {
-      const val = parseInt(volumeRange.value);
-      volumeValue.textContent = val + '%';
-      if (psxEmulator && psxEmulator.setVolume) psxEmulator.setVolume(val / 100);
-      if (val === 0) {
-        muteBtn.textContent = 'Unmute';
-        updateStatus('Muted');
-      } else {
-        muteBtn.textContent = 'Mute';
-        updateStatus('Unmuted');
-      }
-    });
-
-    function updateStatus(text) {
-      const sound = muteBtn.textContent === 'Unmute' ? 'Muted' : 'Unmuted';
-      statusDiv.textContent = `Status: ${text} | Sound: ${sound}`;
+    // Restart game
+    function restartGame() {
+      location.reload();
     }
+
+    // Save state (basic)
+    function downloadSav() {
+      const save = localStorage.getItem("NJS_SAVE_" + gameUrl);
+      if (save) {
+        const blob = new Blob([save], { type: "application/octet-stream" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "gta2_save.sav";
+        a.click();
+      } else {
+        alert("No save data found.");
+      }
+    }
+
+    // Upload state
+    function uploadSav() {
+      document.getElementById("saveInput").click();
+    }
+
+    document.getElementById("saveInput").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function () {
+        localStorage.setItem("NJS_SAVE_" + gameUrl, reader.result);
+        alert("Save uploaded! Refresh to load.");
+      };
+      reader.readAsText(file);
+    });
   </script>
 </body>
 </html>
