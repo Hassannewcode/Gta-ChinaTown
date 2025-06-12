@@ -1,149 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>NDS Emulator – Ad‑Free</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      height: 100%; width: 100%;
-      font-family: sans-serif;
-      background: #f5f5f5;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    header {
-      width: 100%;
-      padding: 16px;
-      background: #e0e0e0;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    #container {
-      flex: 1;
-      width: 100%;
-      max-width: 960px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    #screen {
-      width: 100%;
-      background: #ddd;
-      border: 2px solid #bbb;
-      position: relative;
-    }
-    canvas {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-    #controls {
-      margin-top: 12px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    button, input[type=file] {
-      padding: 8px 12px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    #adblock-status {
-      margin-top: 8px;
-      font-size: 0.9rem;
-      color: #555;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>GTA Chinatown Wars - Real Emulator</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    background: black;
+    color: lightgray;
+    font-family: monospace, monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  #romfile {
+    margin: 1em;
+    color: lightgray;
+    background: #222;
+    border: 1px solid #555;
+    padding: 0.5em;
+  }
+  #canvas {
+    border: 1px solid lightgray;
+    background: black;
+  }
+</style>
 </head>
 <body>
+  <label for="romfile">Load your GTA Chinatown Wars USA ROM (.nds):</label>
+  <input type="file" id="romfile" accept=".nds" />
+  <canvas id="canvas" width="256" height="192"></canvas>
 
-  <header>
-    <h1>GTA Chinatown Wars – NDS Emulator</h1>
-  </header>
+  <script src="https://cdn.jsdelivr.net/gh/ahezard/jsnds/jsnds.min.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    let emulator;
 
-  <div id="container">
-    <div id="screen">Loading emulator...</div>
+    document.getElementById('romfile').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if(!file) return;
 
-    <div id="controls">
-      <input type="file" id="romInput" accept=".nds" />
-      <button id="btnStart" disabled>Start</button>
-      <button id="btnPause" disabled>Pause</button>
-      <button id="btnResume" disabled>Resume</button>
-      <button id="btnFullscreen" disabled>Fullscreen</button>
-    </div>
+      const reader = new FileReader();
+      reader.onload = function() {
+        const romData = new Uint8Array(reader.result);
+        if(emulator) emulator.stop();
 
-    <div id="adblock-status">Initializing ad-blocker…</div>
-  </div>
+        emulator = new JSNDS({
+          canvas: canvas,
+          bios: null, // JSNDS can run without BIOS for many games
+          rom: romData,
+          onError: e => console.error(e),
+        });
 
-  <script type="module">
-    import { ElectronBlocker } from 'https://cdn.jsdelivr.net/npm/@ghostery/adblocker-webextension@1.2.0/dist/adblocker-basic.min.js';
-    import EmulatorJS from 'https://cdn.jsdelivr.net/npm/emulatorjs@1.0.11/dist/emu.min.js';
-
-    let emu = null;
-    const screen = document.getElementById('screen'),
-          romInput = document.getElementById('romInput'),
-          btnStart = document.getElementById('btnStart'),
-          btnPause = document.getElementById('btnPause'),
-          btnResume = document.getElementById('btnResume'),
-          btnFullscreen = document.getElementById('btnFullscreen'),
-          adStatus = document.getElementById('adblock-status');
-
-    // Initialize ad-blocker
-    ElectronBlocker.fromPrebuiltAdsAndTracking().then(adblk => {
-      adblk.enableBlockingInBrowser(window);
-      adStatus.textContent = 'Ad-blocker active.';
-    }).catch(err => {
-      adStatus.textContent = 'Failed to init ad-blocker.';
-      console.error(err);
-    });
-
-    romInput.addEventListener('change', async () => {
-      if (!romInput.files.length) return;
-      const buf = await romInput.files[0].arrayBuffer();
-      if (emu) emu.stop();
-      screen.innerHTML = '';
-      emu = new EmulatorJS({
-        system: 'nds',
-        romBuffer: buf,
-        onReady: () => {
-          btnStart.disabled = false;
-          btnFullscreen.disabled = false;
-        }
-      });
-      screen.appendChild(emu.canvas);
-    });
-
-    btnStart.onclick = () => {
-      emu?.start();
-      btnPause.disabled = false;
-      btnStart.disabled = true;
-    };
-    btnPause.onclick = () => {
-      emu?.pause();
-      btnResume.disabled = false;
-      btnPause.disabled = true;
-    };
-    btnResume.onclick = () => {
-      emu?.resume();
-      btnPause.disabled = false;
-      btnResume.disabled = true;
-    };
-    btnFullscreen.onclick = () => {
-      if (!document.fullscreenElement) {
-        screen.requestFullscreen();
-      } else {
-        document.exitFullscreen();
+        emulator.start();
       }
-    };
+      reader.readAsArrayBuffer(file);
+    });
   </script>
 </body>
 </html>
