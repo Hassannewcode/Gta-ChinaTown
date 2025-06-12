@@ -1,75 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>GTA Chinatown Wars - Real Emulator</title>
-<style>
-  html, body {
-    margin: 0; padding: 0; 
-    height: 100vh; width: 100vw; 
-    background: black; 
-    color: #d3d3d3; 
-    font-family: Arial, sans-serif;
-    display: flex; 
-    flex-direction: column;
-  }
-  #emulator {
-    flex-grow: 1;
-    background: black;
-  }
-  header {
-    padding: 10px 20px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    border-bottom: 1px solid #555;
-  }
-  #status {
-    padding: 8px 20px;
-    font-size: 0.9rem;
-    background: #111;
-    border-top: 1px solid #555;
-  }
-</style>
-</head>
-<body>
-  <header>GTA Chinatown Wars - Real Nintendo DS Emulator</header>
-  <div id="emulator"></div>
-  <div id="status">Loading emulator...</div>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GTA 2 - Play Online | Advanced Embed</title>
 
-  <script src="https://cdn.jsdelivr.net/gh/emulatorjs/emulatorjs/dist/nds.min.js"></script>
-  <script>
-    // Replace this URL with your own hosted GTA Chinatown Wars .nds ROM URL
-    const ROM_URL = 'https://your-server.com/roms/gta-chinatown-wars.nds';
-
-    const statusEl = document.getElementById('status');
-
-    async function loadROM(url) {
-      statusEl.textContent = 'Fetching ROM...';
-      try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to fetch ROM');
-        const arrayBuffer = await response.arrayBuffer();
-
-        statusEl.textContent = 'Starting emulator...';
-
-        const emulator = new EmulatorJS.NDS({
-          element: document.getElementById('emulator'),
-          romBuffer: arrayBuffer,
-          onReady: () => {
-            statusEl.textContent = 'Emulator ready! Enjoy playing GTA Chinatown Wars.';
-          },
-          onError: (e) => {
-            statusEl.textContent = 'Emulator error: ' + e.message;
-          }
-        });
-
-        emulator.start();
-      } catch (e) {
-        statusEl.textContent = 'Error loading ROM: ' + e.message;
+  <!-- Injected CSS via JS, but fallback base style here -->
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0d0d0d;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background: #1a1a1a;
+      padding: 15px 20px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: #f5a623;
+      user-select: none;
+      text-align: center;
+      box-shadow: 0 2px 6px #f5a62388;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+      padding: 15px;
+    }
+    #game-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      aspect-ratio: 16 / 10;
+      box-shadow: 0 0 24px #f5a623cc;
+      border-radius: 10px;
+      background: #111;
+      overflow: hidden;
+    }
+    iframe#gta2-iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 10px;
+    }
+    #loading-screen {
+      position: absolute;
+      inset: 0;
+      background: #121212dd;
+      color: #f5a623;
+      font-size: 1.3rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+      user-select: none;
+    }
+    #loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #loading-spinner {
+      border: 5px solid #222;
+      border-top: 5px solid #f5a623;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      animation: spin 1.2s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin {
+      0% {transform: rotate(0deg);}
+      100% {transform: rotate(360deg);}
+    }
+    #fullscreen-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #f5a623cc;
+      border: none;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #111;
+      font-weight: 700;
+      user-select: none;
+      z-index: 15;
+      transition: background-color 0.2s ease;
+    }
+    #fullscreen-btn:hover {
+      background: #f5a623ee;
+    }
+    /* Disqus Comments Section */
+    #disqus_thread {
+      max-width: 960px;
+      width: 95%;
+      margin: 30px auto 40px auto;
+      background: #181818;
+      border-radius: 10px;
+      padding: 15px 20px;
+      box-shadow: 0 0 20px #f5a62399;
+    }
+    footer {
+      text-align: center;
+      padding: 10px 15px;
+      font-size: 0.85rem;
+      color: #777;
+      background: #111;
+      user-select: none;
+    }
+    /* Responsive */
+    @media (max-width: 700px) {
+      #game-wrapper {
+        max-width: 100%;
+        aspect-ratio: auto;
+        height: 320px;
       }
     }
+  </style>
+</head>
+<body>
 
-    loadROM(ROM_URL);
+  <header>Grand Theft Auto 2 - Play Online</header>
+
+  <main>
+    <div id="game-wrapper">
+      <iframe
+        id="gta2-iframe"
+        src="https://gamesfrog.com/games/ps1/grand-theft-auto-2/iframe"
+        allowfullscreen
+        scrolling="no"
+        title="GTA 2 Online Game"
+      ></iframe>
+
+      <div id="loading-screen">
+        <div id="loading-spinner"></div>
+        Loading GTA 2, please wait...
+      </div>
+
+      <button id="fullscreen-btn" aria-label="Toggle fullscreen">Fullscreen</button>
+    </div>
+  </main>
+
+  <section id="disqus_thread"></section>
+
+  <footer>
+    &copy; 2025 GamesFrog - All rights reserved.
+  </footer>
+
+  <script>
+    (() => {
+      // Load external CSS dynamically for style.min.css
+      const loadCSS = (href) => {
+        return new Promise((res, rej) => {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = href;
+          link.onload = () => res(true);
+          link.onerror = () => rej(new Error(`Failed to load CSS: ${href}`));
+          document.head.appendChild(link);
+        });
+      };
+
+      // Load external JS dynamically for app.min.js
+      const loadJS = (src) => {
+        return new Promise((res, rej) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.defer = true;
+          script.onload = () => res(true);
+          script.onerror = () => rej(new Error(`Failed to load JS: ${src}`));
+          document.head.appendChild(script);
+        });
+      };
+
+      const loadingScreen = document.getElementById('loading-screen');
+      const iframe = document.getElementById('gta2-iframe');
+      const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+      // Remove loading screen once iframe fully loads
+      iframe.addEventListener('load', () => {
+        loadingScreen.classList.add('hidden');
+      });
+
+      // In case iframe errors (fallback)
+      iframe.addEventListener('error', () => {
+        loadingScreen.innerHTML = `<p style="color:#ff5555;">Failed to load GTA 2 game.<br>Please try refreshing the page.</p>`;
+      });
+
+      // Fullscreen toggle handler
+      fullscreenBtn.addEventListener('click', () => {
+        const elem = document.getElementById('game-wrapper');
+        if (!document.fullscreenElement) {
+          if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+          } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+          } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+          }
+          fullscreenBtn.textContent = 'Exit Fullscreen';
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+          fullscreenBtn.textContent = 'Fullscreen';
+        }
+      });
+
+      // Reset button text on fullscreen change (for ESC key or other)
+      document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+          fullscreenBtn.textContent = 'Fullscreen';
+        } else {
+          fullscreenBtn.textContent = 'Exit Fullscreen';
+        }
+      });
+
+      // Initialize - load external CSS and JS
+      Promise.all([
+        loadCSS('https://gamesfrog.com/css/style.min.css?_v=17e2be94'),
+        loadJS('https://gamesfrog.com/js/app.min.js?_v=17e2be94')
+      ]).catch(err => {
+        console.error(err);
+        loadingScreen.innerHTML = `<p style="color:#ff5555;">Failed to load game resources.<br>Please check your connection and reload.</p>`;
+      });
+
+      // Disqus embed
+      var disqus_config = function () {
+        this.page.url = window.location.href;
+        this.page.identifier = 'gta2-gamesfrog-advanced';
+      };
+      (function() {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://emulatorgamesonline.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+
+    })();
   </script>
+
+  <noscript>Please enable JavaScript to play GTA 2 and view comments.</noscript>
+
 </body>
 </html>
