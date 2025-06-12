@@ -5,59 +5,71 @@
 <title>GTA Chinatown Wars - Real Emulator</title>
 <style>
   html, body {
-    margin: 0; padding: 0;
-    background: black;
-    color: lightgray;
-    font-family: monospace, monospace;
-    height: 100vh;
-    display: flex;
+    margin: 0; padding: 0; 
+    height: 100vh; width: 100vw; 
+    background: black; 
+    color: #d3d3d3; 
+    font-family: Arial, sans-serif;
+    display: flex; 
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
   }
-  #romfile {
-    margin: 1em;
-    color: lightgray;
-    background: #222;
-    border: 1px solid #555;
-    padding: 0.5em;
-  }
-  #canvas {
-    border: 1px solid lightgray;
+  #emulator {
+    flex-grow: 1;
     background: black;
+  }
+  header {
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #555;
+  }
+  #status {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    background: #111;
+    border-top: 1px solid #555;
   }
 </style>
 </head>
 <body>
-  <label for="romfile">Load your GTA Chinatown Wars USA ROM (.nds):</label>
-  <input type="file" id="romfile" accept=".nds" />
-  <canvas id="canvas" width="256" height="192"></canvas>
+  <header>GTA Chinatown Wars - Real Nintendo DS Emulator</header>
+  <div id="emulator"></div>
+  <div id="status">Loading emulator...</div>
 
-  <script src="https://cdn.jsdelivr.net/gh/ahezard/jsnds/jsnds.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/emulatorjs/emulatorjs/dist/nds.min.js"></script>
   <script>
-    const canvas = document.getElementById('canvas');
-    let emulator;
+    // Replace this URL with your own hosted GTA Chinatown Wars .nds ROM URL
+    const ROM_URL = 'https://your-server.com/roms/gta-chinatown-wars.nds';
 
-    document.getElementById('romfile').addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if(!file) return;
+    const statusEl = document.getElementById('status');
 
-      const reader = new FileReader();
-      reader.onload = function() {
-        const romData = new Uint8Array(reader.result);
-        if(emulator) emulator.stop();
+    async function loadROM(url) {
+      statusEl.textContent = 'Fetching ROM...';
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch ROM');
+        const arrayBuffer = await response.arrayBuffer();
 
-        emulator = new JSNDS({
-          canvas: canvas,
-          bios: null, // JSNDS can run without BIOS for many games
-          rom: romData,
-          onError: e => console.error(e),
+        statusEl.textContent = 'Starting emulator...';
+
+        const emulator = new EmulatorJS.NDS({
+          element: document.getElementById('emulator'),
+          romBuffer: arrayBuffer,
+          onReady: () => {
+            statusEl.textContent = 'Emulator ready! Enjoy playing GTA Chinatown Wars.';
+          },
+          onError: (e) => {
+            statusEl.textContent = 'Emulator error: ' + e.message;
+          }
         });
 
         emulator.start();
+      } catch (e) {
+        statusEl.textContent = 'Error loading ROM: ' + e.message;
       }
-      reader.readAsArrayBuffer(file);
-    });
+    }
+
+    loadROM(ROM_URL);
   </script>
 </body>
 </html>
