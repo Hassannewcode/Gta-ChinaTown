@@ -1,3 +1,39 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:4aa733fa233c6210589ab02c6ef0ce993bf22987a155c2b8f2e9f22b2e30b632
-size 134217728
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Play Grand Theft Auto: Chinatown Wars Online – Nintendo DS(NDS)</title>
+    <meta property="og:title" content="Play Grand Theft Auto: Chinatown Wars Online – Nintendo DS(NDS)">
+    <meta property="og:image" content="https://gamesfrog.com/files/images/NDS/grand-theft-auto-chinatown-wars-164x164.jpg">
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background-color: #313131;
+        }
+        #emu {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="emu"></div>
+
+    <script>
+        var NepPlayer = "#emu";
+        var NepEmu = "nds";
+        var NepLang = "en";
+
+        // IMPORTANT: This should point to the file in your GitHub repo
+        var gameUrl = "gtacw.nds"; // Make sure gtacw.nds is in your repo root
+
+        var script = document.createElement('script');
+        script.src = "https://mem.neptunjs.com/njs/njsLoader.js";
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>
