@@ -2,75 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GTA Chinatown Wars Emulator - GamesFrog</title>
-  
-  <!-- Load GamesFrog CSS -->
-  <link rel="stylesheet" href="https://gamesfrog.com/css/style.min.css?_v=17e2be94" />
-  
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+  <title>Play Grand Theft Auto: Chinatown Wars Online – Nintendo DS(NDS) – GamesFrog.com</title>
+  <meta property="og:title" content="Play Grand Theft Auto: Chinatown Wars Online – Nintendo DS(NDS) – GamesFrog.com" />
+  <meta property="og:image" content="https://gamesfrog.com/files/images/NDS/grand-theft-auto-chinatown-wars-164x164.jpg" />
   <style>
-    /* Basic page & block styling */
     html, body {
       height: 100%;
       margin: 0;
-      background: #313131;
-      display: flex;
-      flex-direction: column;
-      font-family: Arial, sans-serif;
-      color: white;
+      background-color: #313131;
     }
-    header {
-      padding: 10px;
-      background: #222;
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #000;
-    }
-    iframe {
-      border: none;
-      width: 90vw;
-      height: 90vh;
-      max-width: 1024px;
-      max-height: 576px;
-      box-shadow: 0 0 10px #000;
-      background: #000;
-    }
-    footer {
-      background: #222;
-      padding: 8px;
-      text-align: center;
-      font-size: 0.8rem;
-      color: #888;
+    #emu {
+      width: 100%;
+      height: 100%;
     }
   </style>
+  <script type="text/javascript" async>
+    !function(e,t){
+      a=e.createElement("script"),
+      m=e.getElementsByTagName("script")[0],
+      a.async=1,
+      a.src=t,
+      m.parentNode.insertBefore(a,m)
+    }(document,"https://universal.wgplayer.com/tag/?lh="+window.location.hostname+"&wp="+window.location.pathname+"&ws="+window.location.search);
+  </script>
 </head>
 <body>
+  <div id="emu"></div>
+  <script type="text/javascript">
+    var NepPlayer = "#emu";
+    var NepEmu = "nds";
+    var NepLang = "en";
+    var gameUrl = "https://gamesfrog.com/files/NDS/grand-theft-auto-chinatown-wars.zip";
 
-  <header>Play GTA Chinatown Wars (NDS) - Powered by GamesFrog</header>
-
-  <main>
-    <!-- Emulator iframe -->
-    <iframe
-      src="https://gamesfrog.com/games/nds/grand-theft-auto-chinatown-wars/iframe"
-      allowfullscreen
-      scrolling="no"
-      loading="lazy"
-      title="GTA Chinatown Wars Emulator"
-    ></iframe>
-  </main>
-
-  <footer>
-    Emulator UI and styles loaded from gamesfrog.com
-  </footer>
-
-  <!-- Load GamesFrog JS -->
-  <script src="https://gamesfrog.com/js/app.min.js?_v=17e2be94"></script>
+    var script = document.createElement('script');
+    script.setAttribute('src', 'https://mem.neptunjs.com/njs/njsLoader.js');
+    document.body.appendChild(script);
+  </script>
 </body>
 </html>
