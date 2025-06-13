@@ -3,32 +3,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Play Grand Theft Auto: Chinatown Wars - Nintendo DS Emulator</title>
+  <title>GTA Chinatown Wars Emulator - GamesFrog</title>
+  
+  <!-- Load GamesFrog CSS -->
+  <link rel="stylesheet" href="https://gamesfrog.com/css/style.min.css?_v=17e2be94" />
+  
   <style>
+    /* Basic page & block styling */
     html, body {
-      margin: 0; padding: 0; height: 100%; background-color: #313131;
-      overflow: hidden;
+      height: 100%;
+      margin: 0;
+      background: #313131;
+      display: flex;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+      color: white;
     }
-    #emu {
-      width: 100vw;
-      height: 100vh;
+    header {
+      padding: 10px;
+      background: #222;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+    }
+    iframe {
       border: none;
-      display: block;
+      width: 90vw;
+      height: 90vh;
+      max-width: 1024px;
+      max-height: 576px;
+      box-shadow: 0 0 10px #000;
+      background: #000;
+    }
+    footer {
+      background: #222;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #888;
     }
   </style>
 </head>
 <body>
-  <div id="emu"></div>
 
-  <script>
-    window.NepPlayer = "#emu";
-    window.NepEmu = "nds";
-    window.NepLang = "en";
-    window.gameUrl = "https://gamesfrog.com/files/NDS/grand-theft-auto-chinatown-wars.zip";
+  <header>Play GTA Chinatown Wars (NDS) - Powered by GamesFrog</header>
 
-    var script = document.createElement("script");
-    script.src = "https://mem.neptunjs.com/njs/njsLoader.js";
-    document.body.appendChild(script);
-  </script>
+  <main>
+    <!-- Emulator iframe -->
+    <iframe
+      src="https://gamesfrog.com/games/nds/grand-theft-auto-chinatown-wars/iframe"
+      allowfullscreen
+      scrolling="no"
+      loading="lazy"
+      title="GTA Chinatown Wars Emulator"
+    ></iframe>
+  </main>
+
+  <footer>
+    Emulator UI and styles loaded from gamesfrog.com
+  </footer>
+
+  <!-- Load GamesFrog JS -->
+  <script src="https://gamesfrog.com/js/app.min.js?_v=17e2be94"></script>
 </body>
 </html>
