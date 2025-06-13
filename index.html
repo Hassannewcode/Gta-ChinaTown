@@ -1,80 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GTA 2 Web Emulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Play Grand Theft Auto: Chinatown Wars - Nintendo DS Emulator</title>
   <style>
     html, body {
-      margin: 0; padding: 0; height: 100%; background: #1e1e1e; color: #ddd;
-      font-family: Arial, sans-serif;
+      margin: 0; padding: 0; height: 100%; background-color: #313131;
       overflow: hidden;
-      display: flex; justify-content: center; align-items: center;
     }
     #emu {
       width: 100vw;
       height: 100vh;
-      background: #000;
-      outline: none;
-    }
-    #control-panel {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      background: #2c2c2c;
-      padding: 10px 15px;
-      border-radius: 8px;
-      color: #ccc;
-      font-size: 14px;
-      z-index: 9999;
-      user-select: none;
-    }
-    #control-panel button {
-      background: #444;
       border: none;
-      color: #ddd;
-      padding: 5px 10px;
-      margin: 0 5px 0 0;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    #control-panel button:hover {
-      background: #666;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div id="emu" tabindex="0"></div>
-
-  <div id="control-panel">
-    <button id="fullscreen-btn">Fullscreen</button>
-    <!-- You can add more controls here -->
-  </div>
+  <div id="emu"></div>
 
   <script>
-    // Emulator config variables must be global BEFORE loading the script
-    var NepPlayer = "#emu";
-    var NepEmu = "psx";
-    var NepLang = "en";
+    window.NepPlayer = "#emu";
+    window.NepEmu = "nds";
+    window.NepLang = "en";
+    window.gameUrl = "https://gamesfrog.com/files/NDS/grand-theft-auto-chinatown-wars.zip";
 
-    // IMPORTANT: Make sure this URL matches your uploaded .pbp file location
-    var gameUrl = "https://hassannewcode.github.io/Gta-ChinaTown/grand-theft-auto-2.pbp";
-
-    var EmuGbaBios = "enable";
-
-    // Fullscreen button logic
-    document.getElementById('fullscreen-btn').addEventListener('click', function () {
-      const elem = document.getElementById('emu');
-      if (!document.fullscreenElement) {
-        elem.requestFullscreen().catch(err => {
-          alert(`Error attempting to enable fullscreen: ${err.message}`);
-        });
-      } else {
-        document.exitFullscreen();
-      }
-    });
+    var script = document.createElement("script");
+    script.src = "https://mem.neptunjs.com/njs/njsLoader.js";
+    document.body.appendChild(script);
   </script>
-
-  <!-- Load the emulator script synchronously AFTER all variables -->
-  <script src="https://mem.neptunjs.com/njs/njsLoader.js"></script>
 </body>
 </html>
